@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Calendar from './components/Calendar';
-import RitualBoard from './components/RitualBoard';
+import TaskBoard from './components/TaskBoard';
 import TaskForm from './components/TaskForm';
 import { useTodos } from './hooks/useTodos';
 
@@ -31,7 +31,7 @@ function App() {
               {error} - Make sure the backend is running on port 5001
             </div>
           )}
-          <RitualBoard 
+          <TaskBoard 
             selectedDate={selectedDate}
             todos={todos}
             onToggleComplete={toggleComplete}

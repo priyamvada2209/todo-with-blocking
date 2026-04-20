@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Check, Loader2, Pencil, Trash2, X, Save } from 'lucide-react';
 import { format } from 'date-fns';
 
-const RitualBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDeleteTask, loading }) => {
+const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDeleteTask, loading }) => {
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState('');
 
@@ -48,7 +48,7 @@ const RitualBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDe
             {todos.map(todo => (
               <div 
                 key={todo.id} 
-                className={`group p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-between transition-all border ${
+                className={`group task-card p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-between transition-all border ${
                   todo.is_completed 
                     ? 'bg-slate-50 border-transparent opacity-60' 
                     : 'bg-white border-slate-100 shadow-sm hover:shadow-md hover:border-brand-lavender/40'
@@ -56,6 +56,7 @@ const RitualBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDe
               >
                 <div className="flex items-center space-x-4 lg:space-x-6 flex-1">
                   <button 
+                    type="button"
                     onClick={() => onToggleComplete(todo.id)}
                     className={`w-9 h-9 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
                       todo.is_completed 
@@ -135,4 +136,4 @@ const RitualBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDe
   );
 };
 
-export default RitualBoard;
+export default TaskBoard;
