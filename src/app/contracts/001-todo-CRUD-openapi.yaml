@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Todo API V1
+  version: "1.0.0"
+  description: REST API for device-scoped daily todos identified by IP address.
+servers:
+  - url: http://localhost:5000
+paths:
+  /todos:
+    get:
+      summary: Get todos for a date
+      description: Returns all todos for the requesting device on the given date.
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+          description: ISO date in YYYY-MM-DD format.
+      responses:
+        "200":
+          description: Todos fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Todo"
+                required: [data]
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: 1
+                        task: Drink water
+                        date: "2026-04-20"
+                        sites: []
+                        is_completed: false
+                        created_at: "2026-04-20T07:11:00Z"
+                        updated_at: "2026-04-20T07:11:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    post:
+      summary: Create a todo
+      description: Creates a new todo for the requesting device.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTodoRequest"
+            examples:
+              create:
+                value:
+                  task: Read 20 pages
+                  date: "2026-04-20"
+                  sites:
+                    - https://example.com
+      responses:
+        "201":
+          description: Todo created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Todo"
+                required: [data]
+              examples:
+                success:
+                  value:
+                    data:
+                      id: 2
+                      task: Read 20 pages
+                      date: "2026-04-20"
+                      sites:
+                        - https://example.com
+                      is_completed: false
+                      created_at: "2026-04-20T07:12:00Z"
+                      updated_at: "2026-04-20T07:12:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /todos/{id}:
+    patch:
+      summary: Update todo fields
+      description: Updates editable fields (task, date, sites) for a todo owned by the requesting device.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTodoRequest"
+            examples:
+              update:
+                value:
+                  task: Read 30 pages
+                  sites:
+                    - https://docs.python.org
+      responses:
+        "200":
+          description: Todo updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Todo"
+                required: [data]
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      summary: Delete a todo
+      description: Deletes a todo owned by the requesting device.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "204":
+          description: Todo deleted successfully.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /todos/{id}/complete:
+    patch:
+      summary: Mark todo as completed
+      description: Marks a todo as completed for the requesting device.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Todo marked as completed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Todo"
+                required: [data]
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        task:
+          type: string
+          minLength: 1
+          example: Exercise for 20 minutes
+        date:
+          type: string
+          format: date
+          example: "2026-04-20"
+        sites:
+          type: array
+          items:
+            type: string
+            format: uri
+          example:
+            - https://example.com
+        is_completed:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-04-20T07:10:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-04-20T07:10:00Z"
+      required:
+        - id
+        - task
+        - date
+        - sites
+        - is_completed
+        - created_at
+        - updated_at
+    CreateTodoRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        task:
+          type: string
+          minLength: 1
+        date:
+          type: string
+          format: date
+        sites:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+        - task
+        - date
+    UpdateTodoRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        task:
+          type: string
+          minLength: 1
+        date:
+          type: string
+          format: date
+        sites:
+          type: array
+          items:
+            type: string
+            format: uri
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: bad_request
+            message:
+              type: string
+              example: Invalid request payload.
+            details:
+              type: object
+              additionalProperties: true
+          required: [code, message]
+      required: [error]
+  responses:
+    BadRequest:
+      description: Request failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalid_date:
+              value:
+                error:
+                  code: bad_request
+                  message: date must be a valid ISO date (YYYY-MM-DD).
+    NotFound:
+      description: Resource not found for requesting device.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            not_found:
+              value:
+                error:
+                  code: not_found
+                  message: Todo not found.

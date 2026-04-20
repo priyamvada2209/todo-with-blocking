@@ -1,0 +1,89 @@
+Build a REST API for a simple todo app (V1) using the following stack and architectural requirements:
+
+Tech/implementation requirements:
+- Use Flask for the API layer
+- Use SQLAlchemy ORM for database models
+- Use Alembic for database migrations
+- Use MySQL as the database
+- Follow MVC architecture strictly
+- Create an API contract file as openapi.yaml before implementation
+
+Project structure:
+Follow this structure:
+
+src/app/api/v1/todos/
+  ├── controller.py   (handles HTTP requests/responses only)
+  ├── service.py      (business logic)
+  ├── schema.py       (request/response validation)
+
+Group files by domain (todos module only for now).
+
+Module scope:
+This module is only responsible for storing and managing daily todos for a device, identified by IP address.
+
+Todo entity requirements:
+Each todo must have:
+- task (string): description of the task
+- date (ISO date string): the day the todo belongs to
+- sites (array of URLs, optional): sites needed for completing the task
+- is_completed (boolean): default false
+
+Database requirements:
+Create a tasks table with:
+- id (auto-increment primary key)
+- ip_address (used to identify the device)
+- task
+- date
+- sites (store as JSON array)
+- is_completed
+- created_at timestamp
+- updated_at timestamp
+
+API endpoints to implement:
+
+1. GET /todos?date=YYYY-MM-DD
+   - Return all todos for the requesting device on the given date
+
+2. POST /todos
+   - Create a new todo
+   - Payload: task, date, sites
+
+3. PATCH /todos/:id/complete
+   - Mark the given todo as completed
+
+4. DELETE /todos/:id
+   - Delete the given todo
+
+5. PATCH /todos/:id
+ update editable fields
+
+Behavior and validation requirements:
+- All operations must be scoped by ip_address (extracted from request)
+- A device must only access and modify its own todos
+- Validate:
+  - task is non-empty string
+  - date is valid ISO format
+  - sites is an array if provided
+- Return proper JSON responses and HTTP status codes
+- Maintain clean and consistent error handling
+
+Contract requirement:
+- First create openapi.yaml defining:
+  - all endpoints
+  - request/response schemas
+  - validation rules
+  - status codes
+- Then implement the API based strictly on the contract
+
+Output expectation:
+Provide:
+1. openapi.yaml contract file
+2. SQLAlchemy model(s)
+3. Alembic migration(s)
+4. controller, service, and schema files
+5. example request/response payloads
+
+Important:
+Do not add extra features beyond this scope.
+Focus only on building a clean, modular, V1 todo API.
+
