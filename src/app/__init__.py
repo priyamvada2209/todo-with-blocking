@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 from app.api.v1 import register_v1_routes
@@ -12,6 +13,7 @@ def create_app() -> Flask:
     settings = Settings.from_env()
 
     app = Flask(__name__)
+    CORS(app)
     app.config["JSON_SORT_KEYS"] = False
     app.config["DEBUG"] = settings.debug
 
