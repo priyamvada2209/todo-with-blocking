@@ -94,7 +94,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                       </div>
                     ) : (
                       <>
-                        <h3 className={`text-base lg:text-lg font-extrabold leading-tight truncate ${todo.is_completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+                        <h3 className={`text-base lg:text-lg font-extrabold leading-tight break-words ${todo.is_completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
                           {todo.task}
                         </h3>
                         {todo.sites && todo.sites.length > 0 && (
