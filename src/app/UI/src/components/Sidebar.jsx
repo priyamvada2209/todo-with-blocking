@@ -1,12 +1,10 @@
 import React from 'react';
-import { Calendar, Layout, Target, Plus } from 'lucide-react';
+import { Calendar, Layout } from 'lucide-react';
 
-const Sidebar = ({ onNewRitual }) => {
+const Sidebar = () => {
   const menuItems = [
     { icon: <Layout className="w-5 h-5" />, label: 'Today', active: true },
     { icon: <Calendar className="w-5 h-5" />, label: 'Calendar' },
-    { icon: <Target className="w-5 h-5" />, label: 'Collections' },
-    { icon: <Target className="w-5 h-5" />, label: 'Focus' },
   ];
 
   return (
@@ -31,13 +29,6 @@ const Sidebar = ({ onNewRitual }) => {
           ))}
         </ul>
       </nav>
-
-      <button 
-        onClick={onNewRitual}
-        className="mt-auto bg-gradient-to-r from-brand-lavender to-brand-purple text-white p-4 rounded-2xl flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
-      >
-        <span className="font-semibold">New Ritual</span>
-      </button>
     </div>
   );
 };
