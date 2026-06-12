@@ -1,0 +1,680 @@
+openapi: 3.0.3
+info:
+  title: Todo API V1 - Authentication & User Management
+  version: "2.0.0"
+  description: REST API for user-authenticated daily todos with JWT token-based authentication and httpOnly cookie support.
+servers:
+  - url: http://localhost:5001
+    description: Local development server
+  - url: http://localhost:5001/api/v1
+    description: API v1 base path
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token in Authorization header or httpOnly cookie
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: JWT token in httpOnly cookie (automatically sent by browser)
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique user identifier
+        name:
+          type: string
+          description: User's full name
+        email:
+          type: string
+          format: email
+          description: User's email address (unique)
+      required: [id, name, email]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+          description: JWT access token (also set in httpOnly cookie)
+        refresh_token:
+          type: string
+          description: JWT refresh token for token renewal (also set in httpOnly cookie)
+        token_expiry_minutes:
+          type: integer
+          description: Access token expiration time in minutes
+      required: [user, token, refresh_token, token_expiry_minutes]
+
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User's full name
+          minLength: 1
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          description: Password (minimum 5 chars, must include uppercase, lowercase, digit, special char)
+          minLength: 5
+      required: [name, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          description: User's password
+      required: [email, password]
+
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          description: Valid refresh token
+      required: [refresh_token]
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: New name (email cannot be changed)
+          minLength: 1
+          maxLength: 255
+      required: [name]
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        current_password:
+          type: string
+          description: Current password for verification
+        new_password:
+          type: string
+          description: New password (same strength requirements as registration)
+          minLength: 5
+      required: [current_password, new_password]
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum: [VALIDATION_ERROR, WEAK_PASSWORD, INVALID_EMAIL, EMAIL_EXISTS, INVALID_CREDENTIALS]
+            message:
+              type: string
+            details:
+              type: object
+              description: Field-specific error messages
+              additionalProperties:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+          required: [code, message]
+      required: [error]
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              nullable: true
+          required: [code, message]
+      required: [error]
+
+  responses:
+    BadRequest:
+      description: Invalid request format or validation error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
+          examples:
+            weakPassword:
+              value:
+                error:
+                  code: WEAK_PASSWORD
+                  message: Password does not meet strength requirements
+                  details:
+                    password:
+                      - Password must be at least 5 characters long
+                      - Password must contain at least one uppercase letter (A-Z)
+                      - Password must contain at least one digit (0-9)
+            invalidEmail:
+              value:
+                error:
+                  code: INVALID_EMAIL
+                  message: Invalid email address
+                  details:
+                    email: The email address is not valid
+
+    Unauthorized:
+      description: Authentication required or credentials invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            invalidCredentials:
+              value:
+                error:
+                  code: INVALID_CREDENTIALS
+                  message: Invalid email or password
+            noToken:
+              value:
+                error:
+                  code: unauthorized
+                  message: Authentication required
+
+    Conflict:
+      description: Resource already exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            emailExists:
+              value:
+                error:
+                  code: EMAIL_EXISTS
+                  message: Email already registered
+                  details:
+                    email: This email is already registered
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          example:
+            error:
+              code: internal_server_error
+              message: Internal server error.
+
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: |
+        Create a new user account with email and password.
+        
+        Password requirements:
+        - Minimum 5 characters
+        - At least one uppercase letter (A-Z)
+        - At least one lowercase letter (a-z)
+        - At least one digit (0-9)
+        - At least one special character (!@#$%^&*...)
+        
+        On success, authentication tokens are returned and set in httpOnly cookies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              success:
+                value:
+                  name: John Doe
+                  email: john@example.com
+                  password: SecurePass123!
+      responses:
+        "201":
+          description: User registered successfully. Tokens set in httpOnly cookies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AuthResponse"
+              example:
+                data:
+                  user:
+                    id: 1
+                    name: John Doe
+                    email: john@example.com
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  token_expiry_minutes: 60
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Sets httpOnly cookies for access_token and refresh_token
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Authenticate user with email and password. Returns JWT tokens in httpOnly cookies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: john@example.com
+              password: SecurePass123!
+      responses:
+        "200":
+          description: Login successful. Tokens set in httpOnly cookies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AuthResponse"
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Sets httpOnly cookies for access_token and refresh_token
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Use refresh token to get a new access token before expiration (5 min buffer recommended).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+            example:
+              refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        "200":
+          description: Access token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AuthResponse"
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Sets new httpOnly cookie for access_token
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Clear authentication tokens by expiring httpOnly cookies.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        "204":
+          description: Logout successful. Cookies cleared.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Clears access_token and refresh_token cookies
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/me:
+    get:
+      tags: [User Profile]
+      summary: Get current user profile
+      description: Retrieve the authenticated user's profile information.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        "200":
+          description: User profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+              example:
+                data:
+                  id: 1
+                  name: John Doe
+                  email: john@example.com
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags: [User Profile]
+      summary: Update user profile
+      description: |
+        Update authenticated user's name. Email cannot be modified.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+            example:
+              name: Jane Doe
+      responses:
+        "200":
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+              example:
+                data:
+                  id: 1
+                  name: Jane Doe
+                  email: john@example.com
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/me/password:
+    patch:
+      tags: [User Profile]
+      summary: Change user password
+      description: |
+        Change the authenticated user's password. Requires current password verification.
+        
+        New password must meet strength requirements (same as registration).
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+            example:
+              current_password: SecurePass123!
+              new_password: NewSecurePass456!
+      responses:
+        "200":
+          description: Password changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication failed or current password incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: INVALID_PASSWORD
+                  message: Invalid current password
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /todos:
+    get:
+      tags: [Todos]
+      summary: Get user's todos for a date
+      description: Returns all todos for the authenticated user on the given date.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+          description: ISO date in YYYY-MM-DD format.
+      responses:
+        "200":
+          description: Todos fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        task:
+                          type: string
+                        date:
+                          type: string
+                          format: date
+                        sites:
+                          type: array
+                          items:
+                            type: string
+                        is_completed:
+                          type: boolean
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+
+    post:
+      tags: [Todos]
+      summary: Create a todo
+      description: Creates a new todo for the authenticated user.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                sites:
+                  type: array
+                  items:
+                    type: string
+              required: [task, date]
+      responses:
+        "201":
+          description: Todo created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+
+  /todos/{id}:
+    patch:
+      tags: [Todos]
+      summary: Update todo
+      description: Update a todo owned by the authenticated user.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Todo updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Todos]
+      summary: Delete todo
+      description: Delete a todo owned by the authenticated user.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Todo deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /todos/{id}/complete:
+    patch:
+      tags: [Todos]
+      summary: Mark todo as completed
+      description: Toggle completion status of a todo owned by the authenticated user.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Todo status updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+security:
+  - BearerAuth: []
+  - CookieAuth: []
+
+tags:
+  - name: Authentication
+    description: User registration, login, and token management
+  - name: User Profile
+    description: User profile and password management
+  - name: Todos
+    description: Todo CRUD operations (requires authentication)
