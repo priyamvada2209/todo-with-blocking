@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, request
 from app.api.v1.auth import schema, service
 from app.errors import ApiError
 
-bp = Blueprint("auth", __name__, url_prefix="/auth")
+bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 
 @bp.route("/register", methods=["POST"])

@@ -4,7 +4,7 @@ from app.api.v1.users import schema, service
 from app.auth import require_auth
 from app.errors import ApiError
 
-bp = Blueprint("users", __name__, url_prefix="/users")
+bp = Blueprint("users", __name__, url_prefix="/api/v1/users")
 
 
 @bp.route("/me", methods=["GET"])

@@ -6,7 +6,7 @@ from app.api.v1.todos.controller import todos_bp
 
 
 def register_v1_routes(app: Flask) -> None:
-    # Register blueprints without url_prefix override to use their own prefixes
-    app.register_blueprint(auth_bp, url_prefix="/api/v1")
-    app.register_blueprint(users_bp, url_prefix="/api/v1")
-    app.register_blueprint(todos_bp, url_prefix="/api/v1")
+    # Register blueprints using their own url_prefix definitions
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(users_bp)
+    app.register_blueprint(todos_bp)

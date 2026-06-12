@@ -7,7 +7,7 @@ from app.auth import require_auth
 from app.db import get_session
 from app.errors import ApiError
 
-todos_bp = Blueprint("todos", __name__)
+todos_bp = Blueprint("todos", __name__, url_prefix="/api/v1/todos")
 
 
 @todos_bp.get("/todos")
