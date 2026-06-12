@@ -1,7 +1,10 @@
 import React from 'react';
 import { Settings, User, Menu } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-const Header = () => {
+const Header = ({ onProfileClick }) => {
+  const { user } = useAuth();
+
   return (
     <header className="h-16 flex items-center justify-between px-4 lg:px-10 bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="flex items-center space-x-4 lg:space-x-12">
@@ -18,8 +21,12 @@ const Header = () => {
 
       <div className="flex items-center space-x-4 lg:space-x-6 text-gray-400">
         <Settings className="w-5 h-5 cursor-pointer hover:text-gray-600 transition-colors hidden sm:block" />
-        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer border border-gray-200">
-          <User className="w-5 h-5" />
+        <div 
+          onClick={onProfileClick}
+          className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center cursor-pointer border border-gray-200 hover:shadow-md transition-shadow"
+          title={user?.name || 'Profile'}
+        >
+          <User className="w-5 h-5 text-white" />
         </div>
       </div>
     </header>

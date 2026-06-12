@@ -13,9 +13,19 @@ def create_app() -> Flask:
     settings = Settings.from_env()
 
     app = Flask(__name__)
-    CORS(app)
+    
+    # CORS configuration: allow credentials for cookie-based authentication
+    CORS(
+        app,
+        supports_credentials=True,
+        allow_headers=["Authorization", "Content-Type"],
+    )
+    
     app.config["JSON_SORT_KEYS"] = False
     app.config["DEBUG"] = settings.debug
+    
+    # Store settings in app config for access in middleware/utilities
+    app.config["SETTINGS"] = settings
 
     init_db(settings.database_url)
     register_v1_routes(app)
