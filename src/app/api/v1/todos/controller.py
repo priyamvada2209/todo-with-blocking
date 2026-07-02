@@ -10,7 +10,7 @@ from app.errors import ApiError
 todos_bp = Blueprint("todos", __name__, url_prefix="/api/v1/todos")
 
 
-@todos_bp.get("/todos")
+@todos_bp.get("")
 @require_auth
 def get_todos(current_user):
     query = schema.parse_todos_query(request.args.to_dict(flat=True))
@@ -20,7 +20,7 @@ def get_todos(current_user):
     return jsonify({"data": [schema.serialize_todo(todo) for todo in todos]}), 200
 
 
-@todos_bp.post("/todos")
+@todos_bp.post("")
 @require_auth
 def create_todo(current_user):
     payload = schema.parse_create_payload(request.get_json(silent=True))
@@ -36,7 +36,7 @@ def create_todo(current_user):
     return jsonify({"data": schema.serialize_todo(todo)}), 201
 
 
-@todos_bp.patch("/todos/<int:todo_id>/complete")
+@todos_bp.patch("/<int:todo_id>/complete")
 @require_auth
 def complete_todo(todo_id: int, current_user):
     session = get_session()
@@ -45,7 +45,7 @@ def complete_todo(todo_id: int, current_user):
     return jsonify({"data": schema.serialize_todo(todo)}), 200
 
 
-@todos_bp.patch("/todos/<int:todo_id>")
+@todos_bp.patch("/<int:todo_id>")
 @require_auth
 def update_todo(todo_id: int, current_user):
     payload = schema.parse_update_payload(request.get_json(silent=True))
@@ -55,10 +55,11 @@ def update_todo(todo_id: int, current_user):
     return jsonify({"data": schema.serialize_todo(todo)}), 200
 
 
-@todos_bp.delete("/todos/<int:todo_id>")
+@todos_bp.delete("/<int:todo_id>")
 @require_auth
 def delete_todo(todo_id: int, current_user):
     session = get_session()
 
     service.delete_todo(session, user_id=current_user.id, todo_id=todo_id)
     return "", 204
+

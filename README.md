@@ -91,13 +91,13 @@ The initial task table migration lives in `alembic/versions/20260420_0001_create
 
 ### API endpoints
 
-The backend exposes a todo API under the root path.
+The backend exposes a todo API under the `/api/v1` base path.
 
-- `GET /todos?date=YYYY-MM-DD` — list tasks for the current client IP and selected date
-- `POST /todos` — create a new todo
-- `PATCH /todos/<id>/complete` — mark a todo complete
-- `PATCH /todos/<id>` — update a todo
-- `DELETE /todos/<id>` — delete a todo
+- `GET /api/v1/todos?date=YYYY-MM-DD` — list tasks for the current client IP and selected date
+- `POST /api/v1/todos` — create a new todo
+- `PATCH /api/v1/todos/<id>/complete` — mark a todo complete
+- `PATCH /api/v1/todos/<id>` — update a todo
+- `DELETE /api/v1/todos/<id>` — delete a todo
 
 ### Notes
 
@@ -200,3 +200,4 @@ If the frontend cannot reach the backend, verify that:
 - Frontend app: `src/app/UI`
 - Frontend API client: `src/app/UI/src/services/api.js`
 - Frontend state/hooks: `src/app/UI/src/hooks/useTodos.js`
+
