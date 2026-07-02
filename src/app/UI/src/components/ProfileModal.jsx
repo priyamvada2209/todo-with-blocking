@@ -48,6 +48,11 @@ export const ProfileModal = ({ isOpen, onClose }) => {
     setErrors({});
     setSuccessMessage('');
 
+    if (currentPassword === newPassword) {
+      setErrors({ password: 'New password cannot be the same as your current password' });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setErrors({ password: 'New passwords do not match' });
       return;
