@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { Check, Loader2, Pencil, Trash2, X, Save } from 'lucide-react';
 import { format } from 'date-fns';
 
+const getSiteLabel = (site) => {
+  try {
+    return new URL(site).hostname;
+  } catch {
+    return site;
+  }
+};
+
 const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDeleteTask, loading }) => {
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState('');
@@ -13,7 +21,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
 
   const handleSave = (id) => {
     if (editTask.trim()) {
-      onUpdateTask(id, { task: editTask });
+      onUpdateTask(id, { task: editTask.trim() });
       setEditingId(null);
     }
   };
@@ -46,47 +54,47 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {todos.map(todo => (
-              <div 
-                key={todo.id} 
+              <div
+                key={todo.id}
                 className={`group task-card p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-between transition-all border ${
-                  todo.is_completed 
-                    ? 'bg-slate-50 border-transparent opacity-60' 
+                  todo.is_completed
+                    ? 'bg-slate-50 border-transparent opacity-60'
                     : 'bg-white border-slate-100 shadow-sm hover:shadow-md hover:border-brand-lavender/40'
                 }`}
               >
                 <div className="flex items-center space-x-4 lg:space-x-6 flex-1">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => onToggleComplete(todo.id)}
                     className={`w-9 h-9 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                      todo.is_completed 
-                        ? 'bg-brand-deep border-brand-deep text-white' 
+                      todo.is_completed
+                        ? 'bg-brand-deep border-brand-deep text-white'
                         : 'border-slate-200 bg-white hover:border-brand-purple'
                     }`}
                   >
                     {todo.is_completed && <Check className="w-4 h-4 lg:w-5 lg:h-5" />}
                   </button>
-                  
+
                   <div className="flex-1 min-w-0">
                     {editingId === todo.id ? (
                       <div className="flex items-center space-x-2 w-full">
-                        <input 
+                        <input
                           value={editTask}
                           onChange={(e) => setEditTask(e.target.value)}
                           className="flex-1 bg-slate-50 p-2 rounded-lg border border-brand-lavender outline-none font-bold text-slate-800"
                           autoFocus
                           onKeyDown={(e) => e.key === 'Enter' && handleSave(todo.id)}
                         />
-                        <button 
+                        <button
                           type="button"
-                          onClick={() => handleSave(todo.id)} 
+                          onClick={() => handleSave(todo.id)}
                           className="p-2 text-green-500 hover:bg-green-50 rounded-lg flex-shrink-0 transition-transform active:scale-90"
                         >
                           <Save className="w-5 h-5" />
                         </button>
-                        <button 
+                        <button
                           type="button"
-                          onClick={() => setEditingId(null)} 
+                          onClick={() => setEditingId(null)}
                           className="p-2 text-red-400 hover:bg-red-50 rounded-lg flex-shrink-0 transition-transform active:scale-90"
                         >
                           <X className="w-5 h-5" />
@@ -101,7 +109,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                           <div className="flex flex-wrap gap-1 mt-1">
                             {todo.sites.map((site, i) => (
                               <span key={i} className="bg-brand-light text-brand-purple px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-bold border border-brand-lavender/10">
-                                {new URL(site).hostname}
+                                {getSiteLabel(site)}
                               </span>
                             ))}
                           </div>
@@ -113,13 +121,13 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
 
                 {editingId !== todo.id && (
                   <div className="flex items-center space-x-1 lg:space-x-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                    <button
                       onClick={() => handleEdit(todo)}
                       className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-light rounded-xl transition-all"
                     >
                       <Pencil className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => onDeleteTask(todo.id)}
                       className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                     >

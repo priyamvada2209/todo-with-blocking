@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import * as api from '../services/api';
+import { useCallback, useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import * as api from '../services/api';
 
 export const useTodos = (selectedDate) => {
   const [todos, setTodos] = useState([]);
@@ -9,7 +9,7 @@ export const useTodos = (selectedDate) => {
 
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getTodos(formattedDate);
@@ -21,65 +21,78 @@ export const useTodos = (selectedDate) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formattedDate]);
 
   useEffect(() => {
-    fetchTodos();
-  }, [formattedDate]);
+    const timeoutId = setTimeout(() => {
+      fetchTodos();
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchTodos]);
 
   const addTodo = async (todoData) => {
     try {
       const newTodo = await api.createTodo({
         ...todoData,
-        date: formattedDate
+        date: formattedDate,
       });
-      setTodos([...todos, newTodo]);
+      setTodos((currentTodos) => [...currentTodos, newTodo]);
+      setError(null);
+      return newTodo;
     } catch (err) {
       console.error('Failed to create todo:', err);
+      setError('Failed to add task.');
+      throw err;
     }
   };
 
   const updateTodo = async (id, todoData) => {
-    // Optimistic update
-    const previousTodos = [...todos];
-    setTodos(todos.map(t => t.id === id ? { ...t, ...todoData } : t));
+    const previousTodos = todos;
+    setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id ? { ...todo, ...todoData } : todo)));
 
     try {
       const updatedTodo = await api.updateTodo(id, todoData);
-      setTodos(todos.map(t => t.id === id ? updatedTodo : t));
+      setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id ? updatedTodo : todo)));
+      setError(null);
+      return updatedTodo;
     } catch (err) {
       console.error('Failed to update todo:', err);
-      setTodos(previousTodos); // Revert on failure
+      setTodos(previousTodos);
       setError('Failed to save changes.');
+      throw err;
     }
   };
 
   const toggleComplete = async (id) => {
-    const todo = todos.find(t => t.id === id);
-    if (!todo) return;
-    
-    // Optimistic update
-    const previousTodos = [...todos];
-    setTodos(todos.map(t => t.id === id ? { ...t, is_completed: !t.is_completed } : t));
+    const previousTodos = todos;
+    setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id ? { ...todo, is_completed: !todo.is_completed } : todo)));
 
     try {
       const updatedTodo = await api.completeTodo(id);
-      setTodos(todos.map(t => t.id === id ? updatedTodo : t));
+      setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id ? updatedTodo : todo)));
+      setError(null);
+      return updatedTodo;
     } catch (err) {
       console.error('Failed to complete todo:', err);
       setTodos(previousTodos);
+      setError('Failed to update task status.');
+      throw err;
     }
   };
 
   const removeTodo = async (id) => {
-    const previousTodos = [...todos];
-    setTodos(todos.filter(t => t.id !== id));
+    const previousTodos = todos;
+    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
 
     try {
       await api.deleteTodo(id);
+      setError(null);
     } catch (err) {
       console.error('Failed to delete todo:', err);
       setTodos(previousTodos);
+      setError('Failed to delete task.');
+      throw err;
     }
   };
 

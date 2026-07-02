@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PasswordField } from '../components/PasswordField';
+import { mapApiErrorToFormErrors } from '../utils/apiErrors';
 
 export const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -21,14 +22,11 @@ export const RegisterPage = () => {
       await register(name, email, password);
       navigate('/', { replace: true });
     } catch (error) {
-      const errorData = error.response?.data?.error;
-      if (errorData?.details) {
-        setErrors(errorData.details);
-      } else if (errorData?.message) {
-        setErrors({ general: errorData.message });
-      } else {
-        setErrors({ general: 'Registration failed. Please try again.' });
-      }
+      setErrors(
+        mapApiErrorToFormErrors(error, {
+          fallbackMessage: 'Registration failed. Please try again.',
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }

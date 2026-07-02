@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PasswordField } from '../components/PasswordField';
+import { mapApiErrorToFormErrors } from '../utils/apiErrors';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -20,16 +21,12 @@ export const LoginPage = () => {
       await login(email, password);
       navigate('/', { replace: true });
     } catch (error) {
-      const errorData = error.response?.data?.error;
-      if (errorData?.details?.credentials) {
-        setErrors({ general: errorData.details.credentials });
-      } else if (errorData?.details) {
-        setErrors(errorData.details);
-      } else if (errorData?.message) {
-        setErrors({ general: errorData.message });
-      } else {
-        setErrors({ general: 'Login failed. Please try again.' });
-      }
+      setErrors(
+        mapApiErrorToFormErrors(error, {
+          fallbackMessage: 'Login failed. Please try again.',
+          detailToGeneralKeys: ['credentials'],
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }

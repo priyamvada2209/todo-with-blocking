@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PasswordField } from './PasswordField';
+import { mapApiErrorToFormErrors } from '../utils/apiErrors';
 
 export const ProfileModal = ({ isOpen, onClose }) => {
   const { user, logout, updateProfile, changePassword } = useAuth();
@@ -32,12 +33,11 @@ export const ProfileModal = ({ isOpen, onClose }) => {
       setIsEditingName(false);
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      const errorData = error.response?.data?.error;
-      if (errorData?.details) {
-        setErrors(errorData.details);
-      } else {
-        setErrors({ name: errorData?.message || 'Failed to update name' });
-      }
+      setErrors(
+        mapApiErrorToFormErrors(error, {
+          fallbackMessage: 'Failed to update name',
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -69,12 +69,12 @@ export const ProfileModal = ({ isOpen, onClose }) => {
       setIsChangingPassword(false);
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      const errorData = error.response?.data?.error;
-      if (errorData?.details) {
-        setErrors(errorData.details);
-      } else {
-        setErrors({ password: errorData?.message || 'Failed to change password' });
-      }
+      setErrors(
+        mapApiErrorToFormErrors(error, {
+          fallbackMessage: 'Failed to change password',
+          detailToGeneralKeys: ['current_password'],
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }
