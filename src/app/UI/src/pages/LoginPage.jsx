@@ -21,7 +21,9 @@ export const LoginPage = () => {
       navigate('/', { replace: true });
     } catch (error) {
       const errorData = error.response?.data?.error;
-      if (errorData?.details) {
+      if (errorData?.details?.credentials) {
+        setErrors({ general: errorData.details.credentials });
+      } else if (errorData?.details) {
         setErrors(errorData.details);
       } else if (errorData?.message) {
         setErrors({ general: errorData.message });

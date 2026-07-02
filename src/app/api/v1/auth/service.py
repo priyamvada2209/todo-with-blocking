@@ -57,7 +57,7 @@ def login_user(email: str, password: str, settings) -> tuple:
             "Invalid email or password",
             status_code=401,
             code="INVALID_CREDENTIALS",
-            details={"credentials": "Email or password is incorrect"},
+            details={"credentials": "Invalid email or password"},
         )
 
     # Generate tokens
