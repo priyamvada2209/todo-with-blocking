@@ -11,6 +11,7 @@ def register_user(name: str, email: str, password: str, settings) -> tuple:
 
     # Check if email already exists
     existing_user = session.query(User).filter(User.email == email).first()
+    # print(f"Existing user: {existing_user}")  # Debugging line
     if existing_user:
         raise ApiError(
             "Email already registered",

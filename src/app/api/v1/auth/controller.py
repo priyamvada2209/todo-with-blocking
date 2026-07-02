@@ -46,7 +46,7 @@ def register():
         
         return resp, 201
     except ApiError as e:
-        return jsonify({"error": e.to_dict()}), e.status_code
+        return jsonify({"error": e.details}), e.status_code
 
 
 @bp.route("/login", methods=["POST"])
@@ -59,7 +59,12 @@ def login():
         settings = current_app.config.get("SETTINGS")
         if not settings:
             raise RuntimeError("Settings not configured")
+
+        if not payload.get("email") or not payload.get("password"):
+            raise ApiError("Email and password are required", status_code=400)
+            
         
+
         user, tokens = service.login_user(payload["email"], payload["password"], settings)
         
         response = schema.serialize_auth_response(
@@ -87,7 +92,7 @@ def login():
         
         return resp, 200
     except ApiError as e:
-        return jsonify({"error": e.to_dict()}), e.status_code
+        return jsonify({"error": e.details}), e.status_code
 
 
 @bp.route("/refresh", methods=["POST"])
@@ -120,7 +125,7 @@ def refresh():
         
         return resp, 200
     except ApiError as e:
-        return jsonify({"error": e.to_dict()}), e.status_code
+        return jsonify({"error": e.details}), e.status_code
 
 
 @bp.route("/logout", methods=["POST"])
