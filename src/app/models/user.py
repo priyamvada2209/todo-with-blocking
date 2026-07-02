@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from argon2 import PasswordHasher
-from argon2.exceptions import InvalidHash, VerifyMismatchError
+from argon2.exceptions import InvalidHash, VerificationError, VerifyMismatchError
 from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -40,7 +40,7 @@ class User(Base):
             ph = PasswordHasher()
             ph.verify(self.password_hash, password)
             return True
-        except (InvalidHash, VerifyMismatchError):
+        except (InvalidHash, VerificationError, VerifyMismatchError):
             return False
 
     def update_password(self, new_password: str) -> None:
