@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, jsonify, request
 
 from app.api.v1.auth import schema, service
-from app.errors import ApiError
+from app.errors import ApiError, _error_payload
 
 bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
@@ -12,19 +12,19 @@ def register():
     try:
         data = request.get_json() or {}
         payload = schema.parse_register_payload(data)
-        
+
         settings = current_app.config.get("SETTINGS")
         if not settings:
             raise RuntimeError("Settings not configured")
-        
+
         user, tokens = service.register_user(
             payload["name"], payload["email"], payload["password"], settings
         )
-        
+
         response = schema.serialize_auth_response(
             user, tokens["access_token"], tokens["refresh_token"], tokens["access_token_expiry_minutes"]
         )
-        
+
         # Set httpOnly cookie for access token
         resp = jsonify({"data": response})
         resp.set_cookie(
@@ -43,10 +43,10 @@ def register():
             samesite="Lax",
             max_age=settings.jwt_refresh_expiration_days * 24 * 60 * 60,
         )
-        
+
         return resp, 201
     except ApiError as e:
-        return jsonify({"error": e.details}), e.status_code
+        return jsonify(_error_payload(e.code, e.message, e.details)), e.status_code
 
 
 @bp.route("/login", methods=["POST"])
@@ -55,22 +55,20 @@ def login():
     try:
         data = request.get_json() or {}
         payload = schema.parse_login_payload(data)
-        
+
         settings = current_app.config.get("SETTINGS")
         if not settings:
             raise RuntimeError("Settings not configured")
 
         if not payload.get("email") or not payload.get("password"):
             raise ApiError("Email and password are required", status_code=400)
-            
-        
 
         user, tokens = service.login_user(payload["email"], payload["password"], settings)
-        
+
         response = schema.serialize_auth_response(
             user, tokens["access_token"], tokens["refresh_token"], tokens["access_token_expiry_minutes"]
         )
-        
+
         # Set httpOnly cookie for access token
         resp = jsonify({"data": response})
         resp.set_cookie(
@@ -89,10 +87,10 @@ def login():
             samesite="Lax",
             max_age=settings.jwt_refresh_expiration_days * 24 * 60 * 60,
         )
-        
+
         return resp, 200
     except ApiError as e:
-        return jsonify({"error": e.details}), e.status_code
+        return jsonify(_error_payload(e.code, e.message, e.details)), e.status_code
 
 
 @bp.route("/refresh", methods=["POST"])
@@ -101,17 +99,17 @@ def refresh():
     try:
         data = request.get_json() or {}
         payload = schema.parse_refresh_payload(data)
-        
+
         settings = current_app.config.get("SETTINGS")
         if not settings:
             raise RuntimeError("Settings not configured")
-        
+
         user, tokens = service.refresh_access_token(payload["refresh_token"], settings)
-        
+
         response = schema.serialize_auth_response(
             user, tokens["access_token"], tokens["refresh_token"], tokens["access_token_expiry_minutes"]
         )
-        
+
         # Set httpOnly cookie for new access token
         resp = jsonify({"data": response})
         resp.set_cookie(
@@ -122,10 +120,10 @@ def refresh():
             samesite="Lax",
             max_age=tokens["access_token_expiry_minutes"] * 60,
         )
-        
+
         return resp, 200
     except ApiError as e:
-        return jsonify({"error": e.details}), e.status_code
+        return jsonify(_error_payload(e.code, e.message, e.details)), e.status_code
 
 
 @bp.route("/logout", methods=["POST"])
