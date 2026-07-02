@@ -10,15 +10,12 @@ const api = axios.create({
   withCredentials: true, // Enable sending cookies with requests
 });
 
-// Add response interceptor to handle 401 errors
+// Add response interceptor to handle errors
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
-      // Clear auth and redirect to login
-      localStorage.removeItem('isAuthenticated');
-      window.location.href = '/login';
-    }
+    // Let the caller handle 401 errors (AuthContext will redirect if needed)
+    // This prevents infinite redirect loops on initial auth check
     return Promise.reject(error);
   }
 );
