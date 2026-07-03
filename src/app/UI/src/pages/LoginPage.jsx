@@ -33,20 +33,22 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        <h1 className="mb-2 text-center text-3xl font-bold text-gray-900">Login</h1>
-        <p className="mb-6 text-center text-gray-600">Welcome back to your tasks</p>
+    <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] px-4 py-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(243,187,228,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(229,174,214,0.18),transparent_28%)]" />
+      <div className="glass relative w-full max-w-md rounded-[2rem] p-8 shadow-[0_40px_70px_-45px_rgba(48,51,48,0.35)]">
+        <p className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-[#7e5073]">Welcome Back</p>
+        <h1 className="mb-2 text-center text-3xl font-bold text-[#303330]">Login</h1>
+        <p className="mb-6 text-center text-[#5d605c]">Step back into your daily ritual.</p>
 
         {errors.general && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-4 rounded-2xl bg-[#fff1f4] p-4 text-sm text-[#a8364b]">
             {errors.general}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#5d605c]">
               Email
             </label>
             <input
@@ -55,10 +57,10 @@ export const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="john@example.com"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-2xl bg-[#f4f4f0] px-4 py-3 text-[#303330] transition focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e5aed6]/60"
               required
             />
-            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-sm text-[#a8364b]">{errors.email}</p>}
           </div>
 
           <PasswordField
@@ -75,15 +77,15 @@ export const LoginPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-blue-600 py-2 font-semibold text-white transition duration-200 hover:bg-blue-700 disabled:bg-blue-400"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#7e5073] to-[#e5aed6] py-3 font-semibold text-white shadow-[0_24px_45px_-30px_rgba(126,80,115,0.6)] transition duration-200 hover:scale-[1.01] disabled:opacity-60"
           >
             {isSubmitting ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-gray-600">
+        <p className="mt-6 text-center text-[#5d605c]">
           Don't have an account?{' '}
-          <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700">
+          <Link to="/register" className="font-semibold text-[#7e5073] hover:text-[#5f3557]">
             Register here
           </Link>
         </p>

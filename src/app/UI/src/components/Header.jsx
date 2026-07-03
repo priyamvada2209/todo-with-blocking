@@ -6,27 +6,27 @@ const Header = ({ onProfileClick }) => {
   const { user } = useAuth();
 
   return (
-    <header className="h-16 flex items-center justify-between px-4 lg:px-10 bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header className="sticky top-0 z-50 flex h-18 items-center justify-between border-b border-white/40 bg-[#faf9f6]/90 px-4 backdrop-blur-xl lg:px-10">
       <div className="flex items-center space-x-4 lg:space-x-12">
         <div className="lg:hidden">
-          <Menu className="w-6 h-6 text-gray-500" />
+          <Menu className="h-6 w-6 text-[#797b78]" />
         </div>
-        
+
         <nav className="hidden md:block">
-          <ul className="flex space-x-6 lg:space-x-8 text-sm font-bold text-gray-400">
-            <li className="text-brand-deep border-b-2 border-brand-deep pb-5 -mb-5 cursor-pointer">Tasks</li>
+          <ul className="flex space-x-6 text-sm font-bold text-[#797b78] lg:space-x-8">
+            <li className="-mb-5 cursor-pointer border-b-2 border-[#7e5073] pb-5 text-[#7e5073]">Tasks</li>
           </ul>
         </nav>
       </div>
 
-      <div className="flex items-center space-x-4 lg:space-x-6 text-gray-400">
-        <Settings className="w-5 h-5 cursor-pointer hover:text-gray-600 transition-colors hidden sm:block" />
-        <div 
+      <div className="flex items-center space-x-4 text-[#797b78] lg:space-x-6">
+        <Settings className="hidden h-5 w-5 cursor-pointer transition-colors hover:text-[#7e5073] sm:block" />
+        <div
           onClick={onProfileClick}
-          className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center cursor-pointer border border-gray-200 hover:shadow-md transition-shadow"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-[#e5aed6] to-[#7e5073] shadow-[0_18px_35px_-20px_rgba(48,51,48,0.5)] transition-all hover:scale-[1.02]"
           title={user?.name || 'Profile'}
         >
-          <User className="w-5 h-5 text-white" />
+          <User className="h-5 w-5 text-white" />
         </div>
       </div>
     </header>

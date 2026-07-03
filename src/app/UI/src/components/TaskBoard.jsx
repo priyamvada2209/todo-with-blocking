@@ -49,96 +49,101 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
   };
 
   return (
-    <div className="flex-1 p-6 lg:p-10 flex flex-col space-y-6 lg:space-y-8 h-full bg-white">
+    <div className="flex h-full flex-1 flex-col space-y-6 bg-[#faf9f6] p-6 lg:space-y-8 lg:p-10">
       <div className="space-y-2">
-        <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+        <h2 className="text-3xl font-black tracking-tight text-[#303330] lg:text-4xl">
           {format(selectedDate, 'EEEE, MMM d')}
         </h2>
-        <div className="flex items-center text-slate-400 space-x-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${todos.length > 0 ? 'bg-brand-purple' : 'bg-slate-200'} shadow-sm`} />
-          <span className="font-bold text-sm lg:text-base">
+        <div className="flex items-center space-x-2 text-[#797b78]">
+          <div className={`h-2.5 w-2.5 rounded-full ${todos.length > 0 ? 'bg-[#7e5073]' : 'bg-[#d9dbd6]'} shadow-sm`} />
+          <span className="text-sm font-bold lg:text-base">
             {todos.length} {todos.length === 1 ? 'Task' : 'Tasks'} scheduled
           </span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2 -mr-2">
+      <div className="-mr-2 flex-1 space-y-4 overflow-y-auto pr-2">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-10 h-10 text-brand-purple animate-spin" />
+            <Loader2 className="h-10 w-10 animate-spin text-[#7e5073]" />
           </div>
         ) : todos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-slate-50/30 rounded-[2rem] border-2 border-dashed border-slate-100">
-            <p className="text-slate-400 font-bold text-base text-center px-6">
+          <div className="flex flex-col items-center justify-center rounded-[2rem] bg-white py-20 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.22)]">
+            <p className="px-6 text-center text-base font-bold text-[#797b78]">
               No tasks for this day.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {todos.map(todo => {
+            {todos.map((todo) => {
               const completedLabel = formatCompletedDate(todo.completed_at);
 
               return (
                 <div
                   key={todo.id}
-                  className={`group task-card p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-between transition-all border ${
+                  className={`group task-card flex items-center justify-between rounded-[1.5rem] p-4 transition-all lg:rounded-[2rem] lg:p-6 ${
                     todo.is_completed
-                      ? 'bg-slate-50 border-transparent opacity-60'
-                      : 'bg-white border-slate-100 shadow-sm hover:shadow-md hover:border-brand-lavender/40'
+                      ? 'bg-[#f4f4f0] opacity-75'
+                      : 'bg-white shadow-[0_24px_45px_-38px_rgba(48,51,48,0.28)] hover:bg-[#fffdfd]'
                   }`}
                 >
-                  <div className="flex items-center space-x-4 lg:space-x-6 flex-1">
+                  <div className="flex flex-1 items-center space-x-4 lg:space-x-6">
                     <button
                       type="button"
-                      onClick={() => { if (editingId === todo.id) { setEditingId(null); } onToggleComplete(todo.id); }}
-                      className={`w-9 h-9 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                      onClick={() => {
+                        if (editingId === todo.id) {
+                          setEditingId(null);
+                        }
+                        onToggleComplete(todo.id);
+                      }}
+                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all lg:h-10 lg:w-10 ${
                         todo.is_completed
-                          ? 'bg-brand-deep border-brand-deep text-white'
-                          : 'border-slate-200 bg-white hover:border-brand-purple'
+                          ? 'border-[#7e5073] bg-[#7e5073] text-white'
+                          : 'border-[#e5aed6] bg-white text-transparent hover:border-[#7e5073]'
                       }`}
                     >
-                      {todo.is_completed && <Check className="w-4 h-4 lg:w-5 lg:h-5" />}
+                      {todo.is_completed && <Check className="h-4 w-4 lg:h-5 lg:w-5" />}
                     </button>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       {editingId === todo.id ? (
-                        <div className="flex items-center space-x-2 w-full">
+                        <div className="flex w-full items-center space-x-2">
                           <input
                             value={editTask}
                             onChange={(e) => setEditTask(e.target.value)}
-                            className="flex-1 bg-slate-50 p-2 rounded-lg border border-brand-lavender outline-none font-bold text-slate-800"
+                            className="flex-1 rounded-2xl bg-[#f4f4f0] p-3 font-bold text-[#303330] outline-none focus:bg-white focus:ring-2 focus:ring-[#e5aed6]/60"
                             autoFocus
                             onKeyDown={(e) => e.key === 'Enter' && handleSave(todo)}
                           />
                           <button
                             type="button"
                             onClick={() => handleSave(todo)}
-                            className="p-2 text-green-500 hover:bg-green-50 rounded-lg flex-shrink-0 transition-transform active:scale-90"
+                            className="flex-shrink-0 rounded-xl p-2 text-[#5f3557] transition-transform hover:bg-[#f3bbe4]/30 active:scale-90"
                           >
-                            <Save className="w-5 h-5" />
+                            <Save className="h-5 w-5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditingId(null)}
-                            className="p-2 text-red-400 hover:bg-red-50 rounded-lg flex-shrink-0 transition-transform active:scale-90"
+                            className="flex-shrink-0 rounded-xl p-2 text-[#a8364b] transition-transform hover:bg-[#fff1f4] active:scale-90"
                           >
-                            <X className="w-5 h-5" />
+                            <X className="h-5 w-5" />
                           </button>
                         </div>
                       ) : (
                         <>
-                          <h3 className={`text-base lg:text-lg font-extrabold leading-tight break-words ${todo.is_completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+                          <h3 className={`break-words text-base font-extrabold leading-tight lg:text-lg ${todo.is_completed ? 'text-[#797b78] line-through' : 'text-[#303330]'}`}>
                             {todo.task}
                           </h3>
                           {todo.is_completed && completedLabel && (
-                            <p className="mt-1 text-xs lg:text-sm font-semibold text-slate-400">
+                            <p className="mt-1 text-xs font-semibold text-[#797b78] lg:text-sm">
                               Completed on {completedLabel}
                             </p>
                           )}
                           {todo.sites && todo.sites.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
+                            <div className="mt-2 flex flex-wrap gap-2">
                               {todo.sites.map((site, i) => (
-                                <span key={i} className="bg-brand-light text-brand-purple px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-bold border border-brand-lavender/10">
+                                <span key={i} className="rounded-full bg-[#f3e9de] px-3 py-1 text-[10px] font-bold text-[#5c564e]">
                                   {getSiteLabel(site)}
                                 </span>
                               ))}
@@ -150,21 +155,21 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                   </div>
 
                   {!todo.is_completed && editingId !== todo.id && (
-                    <div className="flex items-center space-x-1 lg:space-x-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="ml-4 flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100 lg:space-x-2">
                       <button
                         type="button"
                         onClick={() => handleEdit(todo)}
                         title="Edit task"
-                        className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-light rounded-xl transition-all"
+                        className="rounded-xl p-2 text-[#797b78] transition-all hover:bg-[#f3bbe4]/20 hover:text-[#7e5073]"
                       >
-                        <Pencil className="w-4 h-4 lg:w-5 lg:h-5" />
+                        <Pencil className="h-4 w-4 lg:h-5 lg:w-5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => onDeleteTask(todo.id)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="rounded-xl p-2 text-[#797b78] transition-all hover:bg-[#fff1f4] hover:text-[#a8364b]"
                       >
-                        <Trash2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                        <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
                       </button>
                     </div>
                   )}

@@ -11,7 +11,7 @@ export const PasswordField = ({
   helperText,
   required = false,
   autoComplete = 'current-password',
-  className = 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-12 text-gray-900 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100',
+  className = 'w-full rounded-2xl bg-[#f4f4f0] px-4 py-3 pr-12 text-[#303330] transition focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e5aed6]/60',
   containerClassName = '',
   ariaLabel,
 }) => {
@@ -22,7 +22,7 @@ export const PasswordField = ({
   return (
     <div className={containerClassName}>
       {label && (
-        <label htmlFor={fieldId} className="mb-2 block text-sm font-medium text-gray-700">
+        <label htmlFor={fieldId} className="mb-2 block text-sm font-medium text-[#5d605c]">
           {label}
         </label>
       )}
@@ -43,7 +43,7 @@ export const PasswordField = ({
         <button
           type="button"
           onClick={() => setIsVisible((visible) => !visible)}
-          className="absolute inset-y-0 right-3 inline-flex items-center justify-center rounded-md px-1 text-gray-400 transition hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="absolute inset-y-0 right-3 inline-flex items-center justify-center rounded-md px-1 text-[#797b78] transition hover:text-[#7e5073] focus:outline-none focus:ring-2 focus:ring-[#e5aed6]/60 focus:ring-offset-2"
           aria-label={isVisible ? 'Hide password' : 'Show password'}
           aria-pressed={isVisible}
         >
@@ -51,8 +51,8 @@ export const PasswordField = ({
         </button>
       </div>
 
-      {error && <div className="mt-1 text-sm text-red-600">{error}</div>}
-      {helperText && <p className="mt-2 text-xs text-gray-500">{helperText}</p>}
+      {error && <div className="mt-1 text-sm text-[#a8364b]">{error}</div>}
+      {helperText && <p className="mt-2 text-xs text-[#797b78]">{helperText}</p>}
     </div>
   );
 };

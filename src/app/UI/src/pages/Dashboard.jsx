@@ -11,31 +11,27 @@ import { useTodos } from '../hooks/useTodos';
 export const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { todos, loading, error, addTodo, toggleComplete, updateTodo, removeTodo } = useTodos(selectedDate);
+  const { todos, loading, error, addTodo, toggleComplete, updateTodo, removeTodo, refresh } = useTodos(selectedDate);
 
   return (
-    <div className="flex flex-col h-screen bg-white overflow-hidden font-sans">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#faf9f6] font-sans text-[#303330]">
       <Header onProfileClick={() => setIsProfileOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Column: Calendar + New Task (50%) */}
-        <div className="w-1/2 flex flex-col h-full bg-slate-50/30 border-r border-gray-100 overflow-y-auto p-6 lg:p-12 space-y-10">
-          <Calendar 
-            selectedDate={selectedDate} 
-            onDateSelect={setSelectedDate} 
+        <div className="flex h-full w-1/2 flex-col space-y-10 overflow-y-auto bg-[#f4f4f0] p-6 lg:p-12">
+          <Calendar
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
           />
-          <TaskForm 
-            onAddTodo={addTodo} 
-          />
+          <TaskForm onAddTodo={addTodo} />
         </div>
-        
-        {/* Right Column: Task List (50%) */}
-        <main className="w-1/2 overflow-hidden bg-white">
+
+        <main className="w-1/2 overflow-hidden bg-[#faf9f6]">
           {error && (
-            <div className="m-4 p-4 bg-red-50 text-red-500 rounded-xl text-center font-medium">
+            <div className="m-4 rounded-2xl bg-[#fff1f4] p-4 text-center font-medium text-[#a8364b]">
               {error} - Make sure the backend is running on port 5001
             </div>
           )}
-          <TaskBoard 
+          <TaskBoard
             selectedDate={selectedDate}
             todos={todos}
             onToggleComplete={toggleComplete}
@@ -46,7 +42,11 @@ export const Dashboard = () => {
         </main>
       </div>
 
-      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onTasksChanged={refresh}
+      />
     </div>
   );
 };

@@ -4,10 +4,10 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMont
 
 const Calendar = ({ selectedDate, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
-  
+
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
-  
+
   const days = eachDayOfInterval({
     start: monthStart,
     end: monthEnd,
@@ -19,42 +19,48 @@ const Calendar = ({ selectedDate, onDateSelect }) => {
   const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm max-w-[320px] mx-auto lg:mx-0">
-      <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="text-lg font-black text-slate-800">
+    <div className="mx-auto max-w-[320px] rounded-[2rem] bg-white p-5 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.28)] lg:mx-0">
+      <div className="mb-5 flex items-center justify-between px-2">
+        <h2 className="text-lg font-black text-[#303330]">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
-        <div className="flex space-x-1">
-          <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-slate-50 rounded-full transition-colors text-slate-400 hover:text-brand-purple">
-            <ChevronLeft className="w-4 h-4" />
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+            className="rounded-full bg-[#faf9f6] p-2 text-[#797b78] transition-colors hover:text-[#7e5073]"
+          >
+            <ChevronLeft className="h-4 w-4" />
           </button>
-          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-slate-50 rounded-full transition-colors text-slate-400 hover:text-brand-purple">
-            <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+            className="rounded-full bg-[#faf9f6] p-2 text-[#797b78] transition-colors hover:text-[#7e5073]"
+          >
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="mb-2 grid grid-cols-7 gap-1">
         {weekDays.map((day, i) => (
-          <div key={i} className="text-center text-slate-300 font-black text-[9px] uppercase tracking-wider">{day}</div>
+          <div key={i} className="text-center text-[9px] font-black uppercase tracking-wider text-[#b0b3ae]">{day}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
-        {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)} 
-        
+      <div className="grid grid-cols-7 gap-1.5">
+        {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)}
+
         {days.map(day => {
           const isSelected = isSameDay(day, selectedDate);
           const dayNum = format(day, 'd');
-          
+
           return (
-            <div 
+            <div
               key={day.toString()}
               onClick={() => onDateSelect(day)}
-              className={`relative flex items-center justify-center aspect-square cursor-pointer transition-all rounded-full text-xs font-bold ${
-                isSelected 
-                  ? 'bg-brand-purple text-white shadow-sm' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-brand-purple'
+              className={`relative flex aspect-square cursor-pointer items-center justify-center rounded-full text-xs font-bold transition-all ${
+                isSelected
+                  ? 'bg-[#f3bbe4] text-[#5f3557] shadow-[0_16px_30px_-20px_rgba(126,80,115,0.55)]'
+                  : 'text-[#5d605c] hover:bg-[#faf9f6] hover:text-[#7e5073]'
               }`}
             >
               {dayNum}
