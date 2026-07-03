@@ -66,7 +66,10 @@ export const useTodos = (selectedDate) => {
 
   const toggleComplete = async (id) => {
     const previousTodos = todos;
-    setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id ? { ...todo, is_completed: !todo.is_completed } : todo)));
+    const completedAt = new Date().toISOString();
+    setTodos((currentTodos) => currentTodos.map((todo) => (
+      todo.id === id ? { ...todo, is_completed: !todo.is_completed, completed_at: !todo.is_completed ? completedAt : null } : todo
+    )));
 
     try {
       const updatedTodo = await api.completeTodo(id);

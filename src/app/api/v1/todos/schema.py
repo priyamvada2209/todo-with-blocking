@@ -109,6 +109,7 @@ def serialize_todo(todo: Task) -> dict[str, Any]:
         "date": todo.date.isoformat(),
         "sites": todo.sites or [],
         "is_completed": todo.is_completed,
+        "completed_at": _iso_datetime(todo.completed_at),
         "created_at": _iso_datetime(todo.created_at),
         "updated_at": _iso_datetime(todo.updated_at),
     }

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -51,6 +51,7 @@ def _get_todo_or_404(session: Session, *, user_id: int, todo_id: int) -> Task:
 def mark_todo_completed(session: Session, *, user_id: int, todo_id: int) -> Task:
     todo = _get_todo_or_404(session, user_id=user_id, todo_id=todo_id)
     todo.is_completed = True
+    todo.completed_at = datetime.now(timezone.utc)
     session.commit()
     session.refresh(todo)
     return todo
@@ -83,4 +84,3 @@ def delete_todo(session: Session, *, user_id: int, todo_id: int) -> None:
     todo = _get_todo_or_404(session, user_id=user_id, todo_id=todo_id)
     session.delete(todo)
     session.commit()
-

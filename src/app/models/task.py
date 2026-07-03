@@ -16,6 +16,7 @@ class Task(Base):
     date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     sites: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     is_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
