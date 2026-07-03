@@ -291,7 +291,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                   onClick={onClose}
                   className="flex items-center gap-2 text-sm font-medium text-[#5d605c] transition hover:text-[#7e5073]"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  {/* <ArrowLeft className="h-5 w-5" /> */}
                   {/* Back */}
                 </button>
                 <h2 className="text-lg font-bold text-[#7e5073] sm:text-2xl">Profile &amp; Dashboard</h2>
