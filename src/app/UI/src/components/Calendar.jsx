@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay, isToday } from 'date-fns';
 
 const Calendar = ({ selectedDate, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
@@ -20,10 +20,13 @@ const Calendar = ({ selectedDate, onDateSelect }) => {
 
   return (
     <div className="mx-auto max-w-[320px] rounded-[2rem] bg-white p-5 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.28)] lg:mx-0">
-      <div className="mb-5 flex items-center justify-between px-2">
-        <h2 className="text-lg font-black text-[#303330]">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h2>
+      <div className="mb-3 flex items-center justify-between px-2">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#797b78]">Planning View</p>
+          <h2 className="mt-2 text-lg font-black text-[#303330]">
+            {format(currentMonth, 'MMMM yyyy')}
+          </h2>
+        </div>
         <div className="flex space-x-2">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -49,8 +52,9 @@ const Calendar = ({ selectedDate, onDateSelect }) => {
       <div className="grid grid-cols-7 gap-1.5">
         {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)}
 
-        {days.map(day => {
-          const isSelected = isSameDay(day, selectedDate);
+        {days.map((day) => {
+          const selected = isSameDay(day, selectedDate);
+          const today = isToday(day);
           const dayNum = format(day, 'd');
 
           return (
@@ -58,12 +62,15 @@ const Calendar = ({ selectedDate, onDateSelect }) => {
               key={day.toString()}
               onClick={() => onDateSelect(day)}
               className={`relative flex aspect-square cursor-pointer items-center justify-center rounded-full text-xs font-bold transition-all ${
-                isSelected
+                selected
                   ? 'bg-[#f3bbe4] text-[#5f3557] shadow-[0_16px_30px_-20px_rgba(126,80,115,0.55)]'
-                  : 'text-[#5d605c] hover:bg-[#faf9f6] hover:text-[#7e5073]'
+                  : today
+                    ? 'bg-[#faf9f6] text-[#7e5073] ring-1 ring-[#e5aed6]/60'
+                    : 'text-[#5d605c] hover:bg-[#faf9f6] hover:text-[#7e5073]'
               }`}
             >
               {dayNum}
+              {today && !selected && <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-[#7e5073]" />}
             </div>
           );
         })}

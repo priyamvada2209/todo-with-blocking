@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Check, Loader2, Pencil, Trash2, X, Save } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -50,7 +50,8 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
 
   return (
     <div className="flex h-full flex-1 flex-col space-y-6 bg-[#faf9f6] p-6 lg:space-y-8 lg:p-10">
-      <div className="space-y-2">
+      <div className="space-y-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#797b78]">Daily Focus</p>
         <h2 className="text-3xl font-black tracking-tight text-[#303330] lg:text-4xl">
           {format(selectedDate, 'EEEE, MMM d')}
         </h2>
@@ -69,8 +70,11 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
           </div>
         ) : todos.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-[2rem] bg-white py-20 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.22)]">
-            <p className="px-6 text-center text-base font-bold text-[#797b78]">
-              No tasks for this day.
+            <p className="px-6 text-center text-2xl font-bold text-[#5d605c]">
+              All clear for this day
+            </p>
+            <p className="mt-2 px-6 text-center text-sm text-[#797b78]">
+              Add a new task when you're ready for the next ritual.
             </p>
           </div>
         ) : (

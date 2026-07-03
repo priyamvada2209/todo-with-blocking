@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PasswordField } from '../components/PasswordField';
@@ -33,9 +33,10 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf9f6] px-4 py-10">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(243,187,228,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(229,174,214,0.18),transparent_28%)]" />
       <div className="glass relative w-full max-w-md rounded-[2rem] p-8 shadow-[0_40px_70px_-45px_rgba(48,51,48,0.35)]">
+        <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#e5aed6] to-transparent" />
         <p className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-[#7e5073]">Welcome Back</p>
         <h1 className="mb-2 text-center text-3xl font-bold text-[#303330]">Login</h1>
         <p className="mb-6 text-center text-[#5d605c]">Step back into your daily ritual.</p>
