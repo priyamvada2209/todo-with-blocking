@@ -15,13 +15,22 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
   const [editTask, setEditTask] = useState('');
 
   const handleEdit = (todo) => {
+    if (todo.is_completed) {
+      return;
+    }
+
     setEditingId(todo.id);
     setEditTask(todo.task);
   };
 
-  const handleSave = (id) => {
+  const handleSave = (todo) => {
+    if (todo.is_completed) {
+      setEditingId(null);
+      return;
+    }
+
     if (editTask.trim()) {
-      onUpdateTask(id, { task: editTask.trim() });
+      onUpdateTask(todo.id, { task: editTask.trim() });
       setEditingId(null);
     }
   };
@@ -65,7 +74,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                 <div className="flex items-center space-x-4 lg:space-x-6 flex-1">
                   <button
                     type="button"
-                    onClick={() => onToggleComplete(todo.id)}
+                    onClick={() => { if (editingId === todo.id) { setEditingId(null); } onToggleComplete(todo.id); }}
                     className={`w-9 h-9 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
                       todo.is_completed
                         ? 'bg-brand-deep border-brand-deep text-white'
@@ -83,11 +92,11 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                           onChange={(e) => setEditTask(e.target.value)}
                           className="flex-1 bg-slate-50 p-2 rounded-lg border border-brand-lavender outline-none font-bold text-slate-800"
                           autoFocus
-                          onKeyDown={(e) => e.key === 'Enter' && handleSave(todo.id)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSave(todo)}
                         />
                         <button
                           type="button"
-                          onClick={() => handleSave(todo.id)}
+                          onClick={() => handleSave(todo)}
                           className="p-2 text-green-500 hover:bg-green-50 rounded-lg flex-shrink-0 transition-transform active:scale-90"
                         >
                           <Save className="w-5 h-5" />
@@ -122,8 +131,11 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                 {editingId !== todo.id && (
                   <div className="flex items-center space-x-1 lg:space-x-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
+                      type="button"
                       onClick={() => handleEdit(todo)}
-                      className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-light rounded-xl transition-all"
+                      disabled={todo.is_completed}
+                      title={todo.is_completed ? 'Completed tasks cannot be edited' : 'Edit task'}
+                      className={`p-2 rounded-xl transition-all ${todo.is_completed ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-brand-purple hover:bg-brand-light'}`}
                     >
                       <Pencil className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
@@ -145,3 +157,4 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
 };
 
 export default TaskBoard;
+

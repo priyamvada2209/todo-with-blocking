@@ -64,6 +64,12 @@ def update_todo(
     updates: dict[str, Any],
 ) -> Task:
     todo = _get_todo_or_404(session, user_id=user_id, todo_id=todo_id)
+    if todo.is_completed:
+        raise ApiError(
+            "Completed todos cannot be edited.",
+            status_code=409,
+            code="todo_completed",
+        )
 
     for field_name, value in updates.items():
         setattr(todo, field_name, value)
@@ -77,3 +83,4 @@ def delete_todo(session: Session, *, user_id: int, todo_id: int) -> None:
     todo = _get_todo_or_404(session, user_id=user_id, todo_id=todo_id)
     session.delete(todo)
     session.commit()
+
