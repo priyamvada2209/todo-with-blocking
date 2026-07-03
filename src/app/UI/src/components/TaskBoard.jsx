@@ -128,18 +128,18 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                   </div>
                 </div>
 
-                {editingId !== todo.id && (
+                {!todo.is_completed && editingId !== todo.id && (
                   <div className="flex items-center space-x-1 lg:space-x-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => handleEdit(todo)}
-                      disabled={todo.is_completed}
-                      title={todo.is_completed ? 'Completed tasks cannot be edited' : 'Edit task'}
-                      className={`p-2 rounded-xl transition-all ${todo.is_completed ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-brand-purple hover:bg-brand-light'}`}
+                      title="Edit task"
+                      className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-light rounded-xl transition-all"
                     >
                       <Pencil className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => onDeleteTask(todo.id)}
                       className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                     >
@@ -157,4 +157,5 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
 };
 
 export default TaskBoard;
+
 
