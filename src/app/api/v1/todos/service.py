@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from datetime import date, datetime, timezone
 from typing import Any
@@ -10,13 +10,18 @@ from app.errors import ApiError
 from app.models.task import Task
 
 
-def list_todos_for_date(session: Session, user_id: int, todo_date: date) -> list[Task]:
-    stmt = (
-        select(Task)
-        .where(Task.user_id == user_id, Task.date == todo_date)
-        .order_by(Task.created_at.asc(), Task.id.asc())
-    )
+def list_todos(session: Session, *, user_id: int, todo_date: date | None = None) -> list[Task]:
+    stmt = select(Task).where(Task.user_id == user_id)
+
+    if todo_date is not None:
+        stmt = stmt.where(Task.date == todo_date)
+
+    stmt = stmt.order_by(Task.date.asc(), Task.created_at.asc(), Task.id.asc())
     return list(session.scalars(stmt).all())
+
+
+def list_todos_for_date(session: Session, user_id: int, todo_date: date) -> list[Task]:
+    return list_todos(session, user_id=user_id, todo_date=todo_date)
 
 
 def create_todo(

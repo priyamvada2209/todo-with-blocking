@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
 
@@ -16,7 +16,7 @@ def get_todos(current_user):
     query = schema.parse_todos_query(request.args.to_dict(flat=True))
     session = get_session()
 
-    todos = service.list_todos_for_date(session, current_user.id, query["date"])
+    todos = service.list_todos(session, user_id=current_user.id, todo_date=query["date"])
     return jsonify({"data": [schema.serialize_todo(todo) for todo in todos]}), 200
 
 
@@ -62,4 +62,3 @@ def delete_todo(todo_id: int, current_user):
 
     service.delete_todo(session, user_id=current_user.id, todo_id=todo_id)
     return "", 204
-

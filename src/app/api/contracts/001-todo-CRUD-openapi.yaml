@@ -1,4 +1,4 @@
-openapi: 3.0.3
+﻿openapi: 3.0.3
 info:
   title: Todo API V1
   version: "1.0.0"
@@ -8,16 +8,16 @@ servers:
 paths:
   /todos:
     get:
-      summary: Get todos for a date
-      description: Returns all todos for the requesting device on the given date.
+      summary: Get todos
+      description: Returns all todos for the requesting device, optionally filtered by date.
       parameters:
         - in: query
           name: date
-          required: true
+          required: false
           schema:
             type: string
             format: date
-          description: ISO date in YYYY-MM-DD format.
+          description: Optional ISO date in YYYY-MM-DD format. When omitted, all todos are returned.
       responses:
         "200":
           description: Todos fetched successfully.
@@ -32,7 +32,7 @@ paths:
                       $ref: "#/components/schemas/Todo"
                 required: [data]
               examples:
-                success:
+                filtered:
                   value:
                     data:
                       - id: 1
@@ -42,6 +42,24 @@ paths:
                         is_completed: false
                         created_at: "2026-04-20T07:11:00Z"
                         updated_at: "2026-04-20T07:11:00Z"
+                all_todos:
+                  value:
+                    data:
+                      - id: 1
+                        task: Drink water
+                        date: "2026-04-20"
+                        sites: []
+                        is_completed: false
+                        created_at: "2026-04-20T07:11:00Z"
+                        updated_at: "2026-04-20T07:11:00Z"
+                      - id: 2
+                        task: Read 20 pages
+                        date: "2026-04-21"
+                        sites:
+                          - https://example.com
+                        is_completed: true
+                        created_at: "2026-04-21T07:12:00Z"
+                        updated_at: "2026-04-21T07:15:00Z"
         "400":
           $ref: "#/components/responses/BadRequest"
     post:
@@ -280,4 +298,3 @@ components:
                 error:
                   code: not_found
                   message: Todo not found.
-

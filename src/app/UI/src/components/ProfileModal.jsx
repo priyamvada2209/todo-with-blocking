@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { addDays, format } from 'date-fns';
 import {
   ArrowLeft,
@@ -128,6 +128,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schedule, setSchedule] = useState({ today: [], tomorrow: [] });
+  const [allTasks, setAllTasks] = useState([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const navigate = useNavigate();
@@ -149,12 +150,14 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       const tomorrow = addDays(today, 1);
 
       try {
-        const [todayTasks, tomorrowTasks] = await Promise.all([
+        const [todayTasks, tomorrowTasks, everyTask] = await Promise.all([
           api.getTodos(format(today, 'yyyy-MM-dd')),
           api.getTodos(format(tomorrow, 'yyyy-MM-dd')),
+          api.getTodos(),
         ]);
 
         setSchedule({ today: todayTasks, tomorrow: tomorrowTasks });
+        setAllTasks(everyTask);
       } catch (error) {
         console.error('Failed to load profile schedule:', error);
         setScheduleError('Could not load your dashboard snapshot.');
@@ -167,10 +170,9 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
   }, [isOpen]);
 
   const stats = useMemo(() => {
-    const combined = [...schedule.today, ...schedule.tomorrow];
-    const totalCompleted = combined.filter((todo) => todo.is_completed).length;
-    const totalTasks = combined.length;
-    const upcomingCount = combined.filter((todo) => !todo.is_completed).length;
+    const totalCompleted = allTasks.filter((todo) => todo.is_completed).length;
+    const totalTasks = allTasks.length;
+    const upcomingCount = allTasks.filter((todo) => !todo.is_completed).length;
     const todayCompleted = schedule.today.filter((todo) => todo.is_completed).length;
     const todayTotal = schedule.today.length;
     const completionRate = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
@@ -184,7 +186,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       totalCompleted,
       upcomingCount,
     };
-  }, [schedule]);
+  }, [allTasks, schedule]);
 
   if (!isOpen || !user) {
     return null;
@@ -260,6 +262,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
         today: currentSchedule.today.map((item) => (item.id === todo.id ? updatedTodo : item)),
         tomorrow: currentSchedule.tomorrow.map((item) => (item.id === todo.id ? updatedTodo : item)),
       }));
+      setAllTasks((currentTasks) => currentTasks.map((item) => (item.id === todo.id ? updatedTodo : item)));
 
       onTasksChanged?.();
     } catch (error) {

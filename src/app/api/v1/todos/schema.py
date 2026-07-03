@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from datetime import date, datetime
 from typing import Any
@@ -49,7 +49,7 @@ def _parse_sites(value: Any) -> list[str]:
 
 def parse_todos_query(query_params: dict[str, Any]) -> dict[str, Any]:
     if "date" not in query_params:
-        raise ApiError("date query parameter is required.")
+        return {"date": None}
     return {"date": _parse_iso_date(query_params.get("date"), "date")}
 
 

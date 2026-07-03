@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -7,20 +7,14 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Enable sending cookies with requests
+  withCredentials: true,
 });
 
-// Add response interceptor to handle errors
 api.interceptors.response.use(
   response => response,
-  error => {
-    // Let the caller handle 401 errors (AuthContext will redirect if needed)
-    // This prevents infinite redirect loops on initial auth check
-    return Promise.reject(error);
-  }
+  error => Promise.reject(error)
 );
 
-// Auth endpoints
 export const register = async (userData) => {
   const response = await api.post('/api/v1/auth/register', userData);
   return response.data.data;
@@ -40,7 +34,6 @@ export const refreshToken = async () => {
   return response.data.data;
 };
 
-// User endpoints
 export const getCurrentUser = async () => {
   const response = await api.get('/api/v1/users/me');
   return response.data.data;
@@ -56,9 +49,9 @@ export const changePassword = async (passwordData) => {
   return response.data.data;
 };
 
-// Todo endpoints
 export const getTodos = async (date) => {
-  const response = await api.get('/api/v1/todos', { params: { date } });
+  const params = date ? { date } : {};
+  const response = await api.get('/api/v1/todos', { params });
   return response.data.data;
 };
 
