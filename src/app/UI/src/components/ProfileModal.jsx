@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import {
   ArrowLeft,
   BadgeCheck,
@@ -30,6 +30,10 @@ const formatTodoMeta = (todo) => {
     return 'Done';
   }
 
+  if (todo.date) {
+    return format(new Date(todo.date), 'MMM d');
+  }
+
   if (todo.sites?.length) {
     return `${todo.sites.length} ${todo.sites.length === 1 ? 'link' : 'links'}`;
   }
@@ -58,23 +62,11 @@ const ProfileTaskRow = ({ todo, onToggle }) => (
     className={`${cardClass} flex w-full items-center justify-between gap-4 p-5 text-left transition hover:-translate-y-0.5`}
   >
     <div className="flex min-w-0 items-center gap-4">
-      <span
-        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 transition ${
-          todo.is_completed
-            ? 'border-[#7e5073] bg-[#7e5073] text-white'
-            : 'border-[#e5aed6] bg-white text-transparent'
-        }`}
-      >
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#e5aed6] bg-white text-transparent transition">
         <Check className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p
-          className={`truncate text-base font-semibold ${
-            todo.is_completed ? 'text-[#797b78] line-through' : 'text-[#303330]'
-          }`}
-        >
-          {todo.task}
-        </p>
+        <p className="truncate text-base font-semibold text-[#303330]">{todo.task}</p>
         {todo.sites?.length > 0 && (
           <p className="mt-1 text-xs text-[#797b78]">
             {todo.sites.length} {todo.sites.length === 1 ? 'resource attached' : 'resources attached'}
@@ -86,35 +78,24 @@ const ProfileTaskRow = ({ todo, onToggle }) => (
   </button>
 );
 
-const ProfileTaskSection = ({ label, accentClassName, tasks, onToggle }) => {
-  const visibleTasks = tasks.slice(0, 3);
+const OpenCommitmentsSection = ({ tasks, onToggle }) => (
+  <section className="space-y-4">
+    <div className="flex items-center gap-3 px-1">
+      <span className="h-2 w-2 rounded-full bg-[#7e5073]" />
+      <h3 className="text-lg font-medium text-[#5d605c]">Open Commitments</h3>
+    </div>
 
-  return (
-    <section className="space-y-4">
-      <div className="flex items-center gap-3 px-1">
-        <span className={`h-2 w-2 rounded-full ${accentClassName}`} />
-        <h3 className="text-lg font-medium text-[#5d605c]">{label}</h3>
-      </div>
-
-      <div className="space-y-4">
-        {visibleTasks.length > 0 ? (
-          <>
-            {visibleTasks.map((todo) => (
-              <ProfileTaskRow key={todo.id} todo={todo} onToggle={onToggle} />
-            ))}
-            {tasks.length > visibleTasks.length && (
-              <p className="px-5 text-sm font-medium text-[#7e5073]">
-                +{tasks.length - visibleTasks.length} more {tasks.length - visibleTasks.length === 1 ? 'task' : 'tasks'}
-              </p>
-            )}
-          </>
-        ) : (
-          <div className={`${cardClass} p-5 text-sm text-[#797b78]`}>Nothing scheduled yet.</div>
-        )}
-      </div>
-    </section>
-  );
-};
+    <div className="space-y-4">
+      {tasks.length > 0 ? (
+        tasks.map((todo) => <ProfileTaskRow key={todo.id} todo={todo} onToggle={onToggle} />)
+      ) : (
+        <div className={`${cardClass} p-5 text-sm text-[#797b78]`}>
+          No open tasks right now. You're all caught up.
+        </div>
+      )}
+    </div>
+  </section>
+);
 
 export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
   const { user, logout, updateProfile, changePassword } = useAuth();
@@ -127,7 +108,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [schedule, setSchedule] = useState({ today: [], tomorrow: [] });
+  const [todayTasks, setTodayTasks] = useState([]);
   const [allTasks, setAllTasks] = useState([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
@@ -142,21 +123,19 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       return;
     }
 
-    const fetchSchedule = async () => {
+    const fetchProfileData = async () => {
       setScheduleLoading(true);
       setScheduleError('');
 
       const today = new Date();
-      const tomorrow = addDays(today, 1);
 
       try {
-        const [todayTasks, tomorrowTasks, everyTask] = await Promise.all([
+        const [todayItems, everyTask] = await Promise.all([
           api.getTodos(format(today, 'yyyy-MM-dd')),
-          api.getTodos(format(tomorrow, 'yyyy-MM-dd')),
           api.getTodos(),
         ]);
 
-        setSchedule({ today: todayTasks, tomorrow: tomorrowTasks });
+        setTodayTasks(todayItems);
         setAllTasks(everyTask);
       } catch (error) {
         console.error('Failed to load profile schedule:', error);
@@ -166,15 +145,20 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       }
     };
 
-    fetchSchedule();
+    fetchProfileData();
   }, [isOpen]);
+
+  const openTasks = useMemo(
+    () => allTasks.filter((todo) => !todo.is_completed),
+    [allTasks]
+  );
 
   const stats = useMemo(() => {
     const totalCompleted = allTasks.filter((todo) => todo.is_completed).length;
     const totalTasks = allTasks.length;
-    const upcomingCount = allTasks.filter((todo) => !todo.is_completed).length;
-    const todayCompleted = schedule.today.filter((todo) => todo.is_completed).length;
-    const todayTotal = schedule.today.length;
+    const upcomingCount = openTasks.length;
+    const todayCompleted = todayTasks.filter((todo) => todo.is_completed).length;
+    const todayTotal = todayTasks.length;
     const completionRate = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
     const dailyMomentum = todayTotal > 0 ? (todayCompleted / todayTotal) * 100 : 0;
 
@@ -186,7 +170,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       totalCompleted,
       upcomingCount,
     };
-  }, [allTasks, schedule]);
+  }, [allTasks, openTasks.length, todayTasks]);
 
   if (!isOpen || !user) {
     return null;
@@ -258,10 +242,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
     try {
       const updatedTodo = await api.completeTodo(todo.id);
 
-      setSchedule((currentSchedule) => ({
-        today: currentSchedule.today.map((item) => (item.id === todo.id ? updatedTodo : item)),
-        tomorrow: currentSchedule.tomorrow.map((item) => (item.id === todo.id ? updatedTodo : item)),
-      }));
+      setTodayTasks((currentTasks) => currentTasks.map((item) => (item.id === todo.id ? updatedTodo : item)));
       setAllTasks((currentTasks) => currentTasks.map((item) => (item.id === todo.id ? updatedTodo : item)));
 
       onTasksChanged?.();
@@ -291,8 +272,8 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                   onClick={onClose}
                   className="flex items-center gap-2 text-sm font-medium text-[#5d605c] transition hover:text-[#7e5073]"
                 >
-                  {/* <ArrowLeft className="h-5 w-5" /> */}
-                  {/* Back */}
+                  {/* Back<ArrowLeft className="h-5 w-5" /> */}
+                  
                 </button>
                 <h2 className="text-lg font-bold text-[#7e5073] sm:text-2xl">Profile &amp; Dashboard</h2>
               </div>
@@ -348,20 +329,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                     <Loader2 className="h-8 w-8 animate-spin text-[#7e5073]" />
                   </div>
                 ) : (
-                  <div className="space-y-8">
-                    <ProfileTaskSection
-                      label="Today"
-                      accentClassName="bg-[#7e5073]"
-                      tasks={schedule.today}
-                      onToggle={handleToggleTodo}
-                    />
-                    <ProfileTaskSection
-                      label="Tomorrow"
-                      accentClassName="bg-[#645e56]"
-                      tasks={schedule.tomorrow}
-                      onToggle={handleToggleTodo}
-                    />
-                  </div>
+                  <OpenCommitmentsSection tasks={openTasks} onToggle={handleToggleTodo} />
                 )}
               </section>
             </div>
