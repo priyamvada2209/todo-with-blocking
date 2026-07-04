@@ -39,7 +39,7 @@ export const LoginPage = () => {
         <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#e5aed6] to-transparent" />
         <p className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-[#7e5073]">Welcome Back</p>
         <h1 className="mb-2 text-center text-3xl font-bold text-[#303330]">Login</h1>
-        <p className="mb-6 text-center text-[#5d605c]">Step back into your daily ritual.</p>
+        {/* <p className="mb-6 text-center text-[#5d605c]">Step back into your daily ritual.</p> */}
 
         {errors.general && (
           <div className="mb-4 rounded-2xl bg-[#fff1f4] p-4 text-sm text-[#a8364b]">
