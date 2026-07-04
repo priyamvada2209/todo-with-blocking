@@ -567,13 +567,9 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                     </form>
                   )}
 
-                  <div className={`${settingsRowClass} cursor-default text-[#303330]/55`}>
-                    <div className="flex items-center gap-4">
-                      <Bell className="h-6 w-6 text-[#7e5073]" />
-                      <span className="text-[1.05rem] font-medium">Notification Settings</span>
-                    </div>
+                  {/* <div className={`${settingsRowClass} cursor-default text-[#303330]/55`}>
                     <ChevronRight className="h-5 w-5 text-[#7f777b]" />
-                  </div>
+                  </div> */}
 
                   <SettingsRow icon={LogOut} label="Logout" tone="danger" endIcon={false} onClick={handleLogout} />
                 </section>
