@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Check, Loader2, Pencil, Trash2, X, Save } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -49,10 +49,10 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
   };
 
   return (
-    <div className="flex h-full flex-1 flex-col space-y-6 bg-[#faf9f6] p-6 lg:space-y-8 lg:p-10">
+    <div className="flex flex-1 flex-col space-y-6 bg-[#faf9f6] p-4 sm:p-6 lg:h-full lg:space-y-8 lg:p-10">
       <div className="space-y-3">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#797b78]">Daily Focus</p>
-        <h2 className="text-3xl font-black tracking-tight text-[#303330] lg:text-4xl">
+        <h2 className="text-3xl font-black tracking-tight text-[#303330] sm:text-4xl">
           {format(selectedDate, 'EEEE, MMM d')}
         </h2>
         <div className="flex items-center space-x-2 text-[#797b78]">
@@ -63,7 +63,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
         </div>
       </div>
 
-      <div className="-mr-2 flex-1 space-y-4 overflow-y-auto pr-2">
+      <div className="flex-1 space-y-4 lg:-mr-2 lg:overflow-y-auto lg:pr-2">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-[#7e5073]" />
@@ -85,7 +85,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
               return (
                 <div
                   key={todo.id}
-                  className={`group task-card flex items-center justify-between rounded-[1.5rem] p-4 transition-all lg:rounded-[2rem] lg:p-6 ${
+                  className={`group task-card flex flex-col gap-4 rounded-[1.5rem] p-4 transition-all sm:flex-row sm:items-center sm:justify-between lg:rounded-[2rem] lg:p-6 ${
                     todo.is_completed
                       ? 'bg-[#f4f4f0] opacity-75'
                       : 'bg-white shadow-[0_24px_45px_-38px_rgba(48,51,48,0.28)] hover:bg-[#fffdfd]'
@@ -159,7 +159,7 @@ const TaskBoard = ({ selectedDate, todos, onToggleComplete, onUpdateTask, onDele
                   </div>
 
                   {!todo.is_completed && editingId !== todo.id && (
-                    <div className="ml-4 flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100 lg:space-x-2">
+                    <div className="flex items-center self-end space-x-1 opacity-100 transition-opacity sm:ml-4 lg:space-x-2 lg:opacity-0 lg:group-hover:opacity-100">
                       <button
                         type="button"
                         onClick={() => handleEdit(todo)}

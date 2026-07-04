@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay, isToday } from 'date-fns';
 
@@ -19,8 +19,8 @@ const Calendar = ({ selectedDate, onDateSelect }) => {
   const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <div className="mx-auto max-w-[320px] rounded-[2rem] bg-white p-5 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.28)] lg:mx-0">
-      <div className="mb-3 flex items-center justify-between px-2">
+    <div className="mx-auto w-full max-w-[320px] rounded-[2rem] bg-white p-5 shadow-[0_30px_60px_-40px_rgba(48,51,48,0.28)] sm:max-w-none lg:mx-0 lg:max-w-[320px]">
+      <div className="mb-3 flex items-center justify-between gap-3 px-2">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#797b78]">Planning View</p>
           <h2 className="mt-2 text-lg font-black text-[#303330]">

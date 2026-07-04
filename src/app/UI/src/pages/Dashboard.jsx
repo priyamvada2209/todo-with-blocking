@@ -14,10 +14,10 @@ export const Dashboard = () => {
   const { todos, loading, error, addTodo, toggleComplete, updateTodo, removeTodo, refresh } = useTodos(selectedDate);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#faf9f6] font-sans text-[#303330]">
+    <div className="flex min-h-screen flex-col bg-[#faf9f6] font-sans text-[#303330] lg:h-screen lg:overflow-hidden">
       <Header onProfileClick={() => setIsProfileOpen(true)} />
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex h-full w-1/2 flex-col space-y-10 overflow-y-auto bg-[#f4f4f0] p-6 lg:p-12">
+      <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
+        <div className="flex w-full flex-col space-y-8 bg-[#f4f4f0] p-4 sm:p-6 lg:h-full lg:w-1/2 lg:space-y-10 lg:overflow-y-auto lg:p-12">
           <Calendar
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
@@ -25,7 +25,7 @@ export const Dashboard = () => {
           <TaskForm onAddTodo={addTodo} />
         </div>
 
-        <main className="w-1/2 overflow-hidden bg-[#faf9f6]">
+        <main className="w-full bg-[#faf9f6] lg:w-1/2 lg:overflow-hidden">
           {error && (
             <div className="m-4 rounded-2xl bg-[#fff1f4] p-4 text-center font-medium text-[#a8364b]">
               {error} - Make sure the backend is running on port 5001
