@@ -23,7 +23,6 @@ import * as api from '../services/api';
 
 const surfaceClass = 'bg-[#faf9f6] text-[#303330]';
 const cardClass = 'rounded-[2rem] border border-[#ede8e4] bg-white shadow-[0_30px_60px_-40px_rgba(48,51,48,0.18)]';
-const softCardClass = 'rounded-[2rem] bg-[#f4f4f0] shadow-[0_30px_60px_-40px_rgba(48,51,48,0.14)]';
 const pillButtonClass =
   'inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-[#e5aed6]/50';
 const inputClass =
@@ -112,18 +111,18 @@ const ProfileTaskRow = ({ todo, onToggle }) => {
     <button
       type="button"
       onClick={() => onToggle(todo)}
-      className={`${cardClass} flex w-full items-center justify-between gap-4 px-5 py-6 text-left transition hover:-translate-y-0.5`}
+      className={`${cardClass} flex w-full items-center justify-between gap-4 px-5 py-5 text-left transition hover:-translate-y-0.5`}
     >
       <div className="flex min-w-0 items-center gap-4">
         <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#d9c5d3] bg-white text-transparent transition">
           <Check className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <p className="break-words text-[1.15rem] font-medium leading-tight text-[#202422]">{todo.task}</p>
+          <p className="break-words text-base font-medium leading-tight text-[#202422] sm:text-[1.15rem]">{todo.task}</p>
           <p className="mt-2 text-sm text-[#5d605c]">{getTaskMeta(todo)}</p>
         </div>
       </div>
-      <Icon className="h-6 w-6 flex-shrink-0 text-[#b5afb2]" />
+      <Icon className="h-5 w-5 flex-shrink-0 text-[#b5afb2] sm:h-6 sm:w-6" />
     </button>
   );
 };
@@ -157,6 +156,7 @@ const SettingsRow = ({ icon: Icon, label, tone = 'default', onClick, endIcon = t
 
 export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
   const { user, logout, updateProfile, changePassword } = useAuth();
+  const [showAllCommitments, setShowAllCommitments] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -217,6 +217,34 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       laterOpen,
     };
   }, [openTasks, todayTasks]);
+
+  const visibleCommitmentSections = useMemo(() => {
+    if (showAllCommitments) {
+      return [
+        {
+          key: 'all',
+          title: 'All Open',
+          tasks: openTasks,
+          emptyLabel: 'No open rituals waiting right now.',
+        },
+      ];
+    }
+
+    return [
+      {
+        key: 'today',
+        title: 'Today',
+        tasks: groupedTasks.todayOpen,
+        emptyLabel: 'No open rituals for today.',
+      },
+      {
+        key: 'later',
+        title: groupedTasks.laterOpen.length > 0 ? 'Open' : 'Later',
+        tasks: groupedTasks.laterOpen,
+        emptyLabel: 'No upcoming rituals waiting right now.',
+      },
+    ];
+  }, [groupedTasks.laterOpen, groupedTasks.todayOpen, openTasks, showAllCommitments]);
 
   const stats = useMemo(() => {
     const totalCompleted = allTasks.filter((todo) => todo.is_completed).length;
@@ -324,7 +352,7 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
       <div className={`fixed inset-0 z-50 overflow-y-auto ${surfaceClass}`}>
         <div className="min-h-full">
           <header className="sticky top-0 z-10 bg-[#faf9f6]/95 backdrop-blur-xl">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 sm:px-8 lg:px-10">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 sm:px-8 lg:px-10">
               <button
                 type="button"
                 onClick={onClose}
@@ -334,37 +362,42 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                 <ArrowLeft className="h-7 w-7" />
               </button>
 
-              <h2 className="flex-1 px-4 text-center text-[1.15rem] font-bold text-[#6d4463] sm:text-[1.8rem]">Profile &amp; Dashboard</h2>
-
+              <h2 className="flex-1 px-3 text-center text-lg font-bold text-[#6d4463] sm:text-[1.8rem]">Profile &amp; Dashboard</h2>
             </div>
           </header>
 
-          <div className="mx-auto w-full max-w-6xl px-6 pb-12 pt-4 sm:px-8 lg:px-10">
+          <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 sm:px-6 lg:px-10">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_30rem] lg:items-start">
               <div className="space-y-8">
-                <section className={`${cardClass} px-6 py-8 sm:px-8`}>
+                <section className={`${cardClass} px-5 py-6 sm:px-8 sm:py-8`}>
                   <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-[2rem] font-bold tracking-[-0.03em] text-[#202422]">Daily Momentum</h3>
-                    <span className="text-[2rem] font-bold text-[#6d4463]">{formatPercent(stats.dailyMomentum)}</span>
+                    <h3 className="text-[1.7rem] font-bold tracking-[-0.03em] text-[#202422] sm:text-[2rem]">Daily Momentum</h3>
+                    <span className="text-[1.7rem] font-bold text-[#6d4463] sm:text-[2rem]">{formatPercent(stats.dailyMomentum)}</span>
                   </div>
 
-                  <div className="mt-8 h-4 overflow-hidden rounded-full bg-[#e7e3e0]">
+                  <div className="mt-6 h-4 overflow-hidden rounded-full bg-[#e7e3e0]">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-[#df9dd5] via-[#d995d1] to-[#c988bf] transition-all"
                       style={{ width: `${stats.dailyMomentum}%` }}
                     />
                   </div>
 
-                  <p className="mt-8 max-w-2xl text-[1.1rem] leading-9 text-[#4f4b4d] sm:text-[1.2rem]">
+                  <p className="mt-6 max-w-2xl text-base leading-8 text-[#4f4b4d] sm:text-[1.2rem] sm:leading-9">
                     {getMomentumMessage(stats.todayCompleted, stats.todayTotal)}
                     {stats.todayTotal > 0 && stats.todayCompleted < stats.todayTotal ? ' Keep the flow going!' : ''}
                   </p>
                 </section>
 
-                <section className="space-y-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="text-[2.5rem] font-black tracking-[-0.05em] text-[#1f2321] sm:text-[3.5rem]">Your Commitments</h3>
-                    <span className="pt-2 text-sm font-bold uppercase tracking-[0.16em] text-[#7e5073]">View All</span>
+                <section className="space-y-5 sm:space-y-6">
+                  <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+                    <h3 className="max-w-[12rem] text-[2rem] font-black leading-[0.95] tracking-[-0.05em] text-[#1f2321] sm:max-w-none sm:text-[3.5rem]">Your Commitments</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllCommitments((current) => !current)}
+                      className="text-sm font-bold uppercase tracking-[0.16em] text-[#7e5073] transition hover:opacity-75"
+                    >
+                      {showAllCommitments ? 'Grouped View' : 'View All'}
+                    </button>
                   </div>
 
                   {scheduleLoading ? (
@@ -373,18 +406,15 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
                     </div>
                   ) : (
                     <div className="space-y-8">
-                      <CommitmentsSection
-                        title="Today"
-                        tasks={groupedTasks.todayOpen}
-                        onToggle={handleToggleTodo}
-                        emptyLabel="No open rituals for today."
-                      />
-                      <CommitmentsSection
-                        title={groupedTasks.laterOpen.length > 0 ? 'Open' : 'Later'}
-                        tasks={groupedTasks.laterOpen}
-                        onToggle={handleToggleTodo}
-                        emptyLabel="No upcoming rituals waiting right now."
-                      />
+                      {visibleCommitmentSections.map((section) => (
+                        <CommitmentsSection
+                          key={section.key}
+                          title={section.title}
+                          tasks={section.tasks}
+                          onToggle={handleToggleTodo}
+                          emptyLabel={section.emptyLabel}
+                        />
+                      ))}
                     </div>
                   )}
                 </section>
@@ -563,4 +593,3 @@ export const ProfileModal = ({ isOpen, onClose, onTasksChanged }) => {
     </>
   );
 };
-
