@@ -8,7 +8,7 @@ cd "$ROOT_DIR"
 if command -v npm >/dev/null 2>&1; then
   echo "Building frontend..."
   cd src/app/UI
-  npm ci
+  npm ci --include=dev
   npm run build
   cd "$ROOT_DIR"
 else
