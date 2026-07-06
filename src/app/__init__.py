@@ -1,4 +1,7 @@
-from flask import Flask
+import os
+from pathlib import Path
+
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -12,7 +15,8 @@ def create_app() -> Flask:
     load_dotenv()
     settings = Settings.from_env()
 
-    app = Flask(__name__)
+    static_folder = Path(__file__).resolve().parent / "UI" / "dist"
+    app = Flask(__name__, static_folder=str(static_folder), static_url_path="")
     
     # CORS configuration: allow credentials for cookie-based authentication
     CORS(
@@ -30,6 +34,13 @@ def create_app() -> Flask:
     init_db(settings.database_url)
     register_v1_routes(app)
     register_error_handlers(app)
+
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_frontend(path: str):
+        if path and os.path.exists(os.path.join(app.static_folder, path)):
+            return send_from_directory(app.static_folder, path)
+        return send_from_directory(app.static_folder, "index.html")
 
     @app.teardown_appcontext
     def shutdown_session(exception: Exception | None = None) -> None:
