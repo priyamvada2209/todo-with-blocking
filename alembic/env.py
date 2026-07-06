@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 from alembic import context
 
@@ -49,10 +51,29 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    # Build URL and connect args so we can support Aiven-style SSL params.
+    def _strip_ssl_mode_from_url(url: str) -> str:
+        parts = urlsplit(url)
+        qs = parse_qsl(parts.query, keep_blank_values=True)
+        qs = [(k, v) for k, v in qs if k.lower() not in ("ssl-mode", "ssl_mode")]
+        new_query = urlencode(qs)
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, new_query, parts.fragment))
+
+    raw_url = config.get_main_option("sqlalchemy.url")
+    url = raw_url
+    if raw_url:
+        url = _strip_ssl_mode_from_url(raw_url)
+
+    # If you provide a CA path via env var, pass it as a PyMySQL-friendly ssl dict.
+    connect_args = {}
+    ca_path = os.getenv("MYSQL_CA_PATH") or os.getenv("AIVEN_MYSQL_CA_PATH") or os.getenv("MYSQL_SSL_CA")
+    if ca_path:
+        connect_args["ssl"] = {"ca": ca_path}
+
+    connectable = create_engine(
+        url,
         poolclass=pool.NullPool,
+        connect_args=connect_args,
     )
 
     with connectable.connect() as connection:
