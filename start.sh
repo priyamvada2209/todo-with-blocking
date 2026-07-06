@@ -19,4 +19,5 @@ fi
 alembic upgrade head
 
 # Start the Flask app with Gunicorn.
-exec gunicorn src.app.wsgi:app --bind 0.0.0.0:$PORT --workers 1 --threads 2
+export PYTHONPATH="$ROOT_DIR/src"
+exec gunicorn app.wsgi:app --bind 0.0.0.0:$PORT --workers 1 --threads 2
