@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from flask import Flask, jsonify
@@ -40,5 +41,6 @@ def register_error_handlers(app: Flask) -> None:
         return jsonify(_error_payload(code, error.description)), error.code
 
     @app.errorhandler(Exception)
-    def handle_unexpected_error(_error: Exception):  # type: ignore[override]
+    def handle_unexpected_error(error: Exception):  # type: ignore[override]
+        app.logger.exception("Unexpected error")
         return jsonify(_error_payload("internal_server_error", "Internal server error.")), 500
